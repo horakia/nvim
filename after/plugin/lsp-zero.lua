@@ -1,3 +1,14 @@
+vim.opt.signcolumn = 'yes'
+
+-- Add cmp_nvim_lsp capabilities settings to lspconfig
+-- This should be executed before you configure any language server
+local lspconfig_defaults = require('lspconfig').util.default_config
+lspconfig_defaults.capabilities = vim.tbl_deep_extend(
+  'force',
+  lspconfig_defaults.capabilities,
+  require('cmp_nvim_lsp').default_capabilities()
+)
+
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('user_lsp_attach', { clear = true }),
   callback = function(event)
@@ -10,6 +21,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
     vim.keymap.set('i', '<C-K>', function() vim.lsp.buf.hover() end, opts)
     vim.keymap.set('n', '<leader>fmt', function() vim.lsp.buf.format() end, opts)
+    vim.keymap.set({'n', 'x'}, '<leader>ff', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
     vim.keymap.set('n', '<leader>vws', function() vim.lsp.buf.workspace_symbol() end, opts)
     vim.keymap.set('n', '<leader>vd', function() vim.diagnostic.open_float() end, opts)
     vim.keymap.set('n', '[d', function() vim.diagnostic.goto_next() end, opts)
@@ -26,7 +38,7 @@ local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-  ensure_installed = { 'reason_ls', 'lua_ls', 'elixirls', 'denols', 'cssls', 'kotlin_language_server' },
+  ensure_installed = { 'reason_ls', 'lua_ls', 'elixirls', 'denols', 'cssls', 'kotlin_language_server', 'gopls' },
   handlers = {
     function(server_name)
       require('lspconfig')[server_name].setup({
@@ -53,6 +65,20 @@ require('mason-lspconfig').setup({
         }
       })
     end,
+    gopls = function()
+      require('lspconfig').gopls.setup({
+        capabilities = lsp_capabilities,
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+            },
+            staticcheck = true,
+            gofumpt = true,
+          },
+        },
+      })
+    end,
   }
 })
 
@@ -65,8 +91,8 @@ require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup({
   sources = {
-    { name = 'path' },
     { name = 'nvim_lsp' },
+    { name = 'path' },
     { name = 'luasnip', keyword_length = 2 },
     { name = 'buffer',  keyword_length = 3 },
   },
