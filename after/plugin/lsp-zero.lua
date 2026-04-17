@@ -38,7 +38,7 @@ local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-  ensure_installed = { 'reason_ls', 'lua_ls', 'elixirls', 'denols', 'cssls', 'kotlin_language_server', 'gopls' },
+  ensure_installed = { 'rescriptls', 'lua_ls', 'elixirls', 'cssls', 'kotlin_language_server', 'gopls', 'tsserver', 'eslint' },
   handlers = {
     function(server_name)
       require('lspconfig')[server_name].setup({
@@ -79,6 +79,131 @@ require('mason-lspconfig').setup({
         },
       })
     end,
+    tsserver = function()
+      require('lspconfig').tsserver.setup({
+        capabilities = lsp_capabilities,
+        settings = {
+          typescript = {
+            updateImportsOnFileMove = { enabled = "always" },
+            preferences = {
+              includeInlayParameterNameHints = 'all',
+              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = false,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+              importModuleSpecifierPreference = 'shortest',
+              importModuleSpecifierEnding = 'minimal',
+              allowTextChangesInNewFiles = true,
+              quotePreference = 'single',
+            },
+            format = {
+              insertSpaceAfterFunctionKeywordForAnonymousFunctions = false,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets = false,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces = true,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis = false,
+              insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces = false,
+              insertSpaceAfterSemicolonInForStatements = true,
+              insertSpaceAfterTypeAssertion = false,
+              insertSpaceBeforeAndAfterBinaryOperators = true,
+              insertSpaceBeforeFunctionParenthesis = false,
+              placeOpenBraceOnNewLineForControlBlocks = false,
+              placeOpenBraceOnNewLineForFunctions = false,
+              semicolons = 'insert',
+              trimTrailingWhitespace = true,
+            },
+            suggest = {
+              autoImports = true,
+              completeFunctionCalls = true,
+              completeJSDocs = true,
+              enabled = true,
+              paths = true,
+              includeAutomaticOptionalChainCompletions = true,
+              includeCompletionsForImportStatements = true,
+              includeCompletionsWithSnippetText = true,
+            },
+          },
+          javascript = {
+            updateImportsOnFileMove = { enabled = "always" },
+            preferences = {
+              importModuleSpecifierPreference = 'shortest',
+              importModuleSpecifierEnding = 'minimal',
+              quotePreference = 'single',
+            },
+            format = {
+              insertSpaceAfterFunctionKeywordForAnonymousFunctions = false,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets = false,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces = true,
+              insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis = false,
+              insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces = false,
+              insertSpaceAfterSemicolonInForStatements = true,
+              insertSpaceBeforeAndAfterBinaryOperators = true,
+              insertSpaceBeforeFunctionParenthesis = false,
+              placeOpenBraceOnNewLineForControlBlocks = false,
+              placeOpenBraceOnNewLineForFunctions = false,
+              semicolons = 'insert',
+              trimTrailingWhitespace = true,
+            },
+            suggest = {
+              autoImports = true,
+              completeFunctionCalls = true,
+              completeJSDocs = true,
+              enabled = true,
+              paths = true,
+              includeAutomaticOptionalChainCompletions = true,
+              includeCompletionsForImportStatements = true,
+              includeCompletionsWithSnippetText = true,
+            },
+          },
+          completions = {
+            completeFunctionCalls = true
+          }
+        },
+        on_attach = function(client, bufnr)
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
+        end,
+      })
+    end,
+    eslint = function()
+      require('lspconfig').eslint.setup({
+        capabilities = lsp_capabilities,
+        on_attach = function(client, bufnr)
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            command = "EslintFixAll",
+          })
+        end,
+        settings = {
+          codeAction = {
+            disableRuleComment = {
+              enable = true,
+              location = "separateLine"
+            },
+            showDocumentation = {
+              enable = true
+            }
+          },
+          codeActionOnSave = {
+            enable = false,
+            mode = "all"
+          },
+          format = true,
+          nodePath = "",
+          onIgnoredFiles = "off",
+          packageManager = "npm",
+          quiet = false,
+          rulesCustomizations = {},
+          run = "onType",
+          useESLintClass = false,
+          validate = "on",
+          workingDirectory = {
+            mode = "location"
+          }
+        }
+      })
+    end,
   }
 })
 
@@ -111,9 +236,5 @@ cmp.setup({
     end,
   },
 })
-
-vim.g.LanguageClient_serverCommands = {
-  reason = '/Users/hdragomir/rls-macos/reason-language-server'
-}
 
 vim.cmd [[let g:deoplete#enable_at_startup = 1]]

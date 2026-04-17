@@ -5,9 +5,10 @@ vim.call('plug#begin')
 Plug('folke/tokyonight.nvim')
 
 Plug('elixir-editors/vim-elixir')
-Plug('reasonml-editor/vim-reason-plus')
+Plug('rescript-lang/vim-rescript')
 
 Plug('nvim-tree/nvim-web-devicons')
+Plug('nvim-tree/nvim-tree.lua')
 
 Plug('junegunn/fzf', { ['do'] = function()
   vim.fn['fzf#install']()
@@ -16,6 +17,7 @@ Plug('junegunn/fzf.vim')
 Plug('mbbill/undotree')
 Plug('nvim-treesitter/nvim-treesitter', {['do'] = ':TSUpdate'})
 Plug('tpope/vim-fugitive')
+Plug('https://tpope.io/vim/surround.git')
 
 Plug('williamboman/mason.nvim')
 Plug('williamboman/mason-lspconfig.nvim')
